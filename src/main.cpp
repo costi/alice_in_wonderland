@@ -7,8 +7,10 @@ class MagnetSensor {
     bool states[MOVING_AVG];
     bool state;
     int8_t pin;
+    char name[16];
+    int8_t magnetAway;
   public:
-    MagnetSensor(int somePin);
+    MagnetSensor(int, int8_t, char[]);
     int getState();
     void setup(); // arduino setup
   private:
@@ -16,8 +18,10 @@ class MagnetSensor {
     int read();
 };
 
-MagnetSensor::MagnetSensor(int somePin){
+MagnetSensor::MagnetSensor(int somePin, int8_t pinMagnetAway = MAGNET_AWAY, char givenName[] = "Sensor"){
   pin = somePin;
+  strcpy(name, givenName);
+  magnetAway = pinMagnetAway;
 }
 
 void MagnetSensor::setup(){
@@ -49,8 +53,9 @@ int MagnetSensor::getState() {
   int newState = calcAvg();
   if(newState != state){
     Serial.println("Change detected!!!");
-    Serial.print("Mushroom state: ");
-    if(newState == MAGNET_AWAY){
+    Serial.print(name);
+    Serial.print(" state: ");
+    if(newState == magnetAway){
       Serial.println("Away");
     } else {
       Serial.println("On sensor");
@@ -60,15 +65,21 @@ int MagnetSensor::getState() {
   return state;
 }
 
-MagnetSensor mushroom(21);
+MagnetSensor mushroom(21, 1, "Mushroom");
+MagnetSensor cards(5, 0, "Playing Cards");
+MagnetSensor cup(6, 0, "Cup");
 
 void setup() {
   Serial.begin(9600);
   Serial.println("Starting!");
   mushroom.setup();
+  cards.setup();
+  cup.setup();
 }
 
 
 void loop() {
   mushroom.getState();
+  cards.getState();
+  cup.getState();
 }
